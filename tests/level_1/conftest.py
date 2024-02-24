@@ -8,18 +8,36 @@ from functions.level_1.four_bank_parser import BankCard, Expense, SmsMessage
 
 
 @fixture(params=[
-    {'param': {
-        'verb_male': 'сделала',
-        'verb_female': 'сделал',
-        'gender': 'male'
-    },
+    {
+        'param': {
+            'verb_male': 'сделала',
+            'verb_female': 'сделал',
+            'gender': 'male'
+        },
         'result': 'сделала'
     },
-    {'param': {
-        'verb_male': 'сделала',
-        'verb_female': 'сделал',
-        'gender': ''
+    {
+        'param': {
+            'verb_male': 'сделала',
+            'verb_female': 'сделал',
+            'gender': ''
+        },
+        'result': 'сделал'
     },
+    {
+        'param': {
+            'verb_male': 'сделала',
+            'verb_female': 'сделал',
+            'gender': None
+        },
+        'result': 'сделал'
+    },
+    {
+        'param': {
+            'verb_male': 'сделала',
+            'verb_female': 'сделал',
+            'gender': 0
+        },
         'result': 'сделал'
     },
 ])
@@ -30,31 +48,39 @@ def gender(request):
 @fixture(params=[
     {
         'date_str': 'tomorrow',
-        'time': 11
+        'time': '11:11'
     },
     {
         'date_str': '',
-        'time': 22
+        'time': '22:22'
+    },
+    {
+        'date_str': datetime.date.today(),
+        'time': '01:01'
+    },
+    {
+        'date_str': None,
+        'time': '02:02'
+    },
+    {
+        'date_str': None,
+        'time': '33:33',
+        'exception': ValueError
     },
 ])
 def compose_dt_from(request):
-    today = datetime.date.today()
-    dt = datetime.datetime(
-        today.year,
-        today.month,
-        today.day,
-        int(request.param['time']),
-        int(request.param['time']),
-    )
+    dt = datetime.date.today()
     if request.param['date_str'] == 'tomorrow':
         dt += datetime.timedelta(days=1)
     data = {
         'param': {
             'date_str': request.param['date_str'],
-            'time_str': f'{request.param['time']}:{request.param['time']}'
+            'time_str': request.param['time']
         },
-        'result': dt
+        'result': f'{dt.isoformat()} {request.param['time']}:00'
     }
+    if exception := request.param.get('exception'):
+        data['exception'] = exception
     return data
 
 
